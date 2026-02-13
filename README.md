@@ -31,12 +31,16 @@ Claude reads your code first, then asks questions grounded in what it found. Ins
 > "I see three error handling patterns in your codebase. Most request handlers return a result object, a few throw exceptions caught by middleware, and one module uses inline checks.
 >
 > For this feature:
+>
 > **A) Result object** — consistent with most of your code, caller gets structured errors
+>
 > **B) Throw exception** — simpler, middleware handles it uniformly
+>
 > **C) Inline checks** — if the rules are tightly coupled to business logic
+>
 > **D) Something else**
 >
-> I'd recommend A since 80% of your codebase follows that pattern."
+> I'd recommend option A since 80% of your codebase follows that pattern."
 
 Recognition beats recall. Picking from informed options is faster, more accurate, and surfaces approaches you might not have considered.
 
