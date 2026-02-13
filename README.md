@@ -7,8 +7,11 @@ Turn a user story, ticket, or feature idea into a specifcation that Claude Code 
 You run `/speck feature-name`, paste your business requirements, and Claude fills in the technical gaps — codebase patterns, prohibitions, decision trees, edge cases — through a structured interview using multiple-choice questions grounded in your actual code. The output is a single markdown spec. You review it, then a fresh Claude Code session implements it cleanly.
 
 ```
-/speck order-cancellation        # plan: interview → spec
-/speck:implement order-cancellation  # implement: spec → code
+/plugin marketplace add rasmusHochreuter/speck
+/plugin install speck@speck-marketplace
+
+/speck order-cancellation           # plan: interview → spec
+/speck:implement order-cancellation # implement: spec → code
 ```
 
 The spec is a one-shot planning artifact, not a living document. Once the feature is implemented, you don't update the spec and re-run implementation. Bugs and enhancements are handled the normal way — you just tell Claude what to fix. The spec captured your intent, Claude internalized it, and then it got out of the way.
