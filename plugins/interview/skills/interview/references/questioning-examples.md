@@ -1,6 +1,6 @@
 # Questioning Examples by Phase
 
-Reference examples for how to construct codebase-grounded, multiple-choice questions during each phase of the Speck specification workflow.
+Reference examples for how to construct codebase-grounded, multiple-choice questions during each phase of the TheInterviewer specification workflow.
 
 ## Bad vs Good Questioning
 

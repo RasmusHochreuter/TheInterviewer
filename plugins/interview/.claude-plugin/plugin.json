@@ -1,5 +1,5 @@
 {
-  "name": "speck",
+  "name": "interview",
   "description": "Specification-only feature planning for .NET/C# projects. Produces a markdown spec capturing requirements, prohibitions, decision trees, and escalation boundaries.",
   "version": "1.0.0"
 }

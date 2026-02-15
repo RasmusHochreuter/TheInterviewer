@@ -1,15 +1,15 @@
 {
-  "name": "speck-marketplace",
+  "name": "interview-marketplace",
   "owner": {
     "name": "Rasmus Hochreuter"
   },
   "metadata": {
-    "description": "Lightweight spec kit for Claude Code — generates feature specifications with prohibitions, decision trees, and acceptance criteria"
+    "description": "TheInterviewer — a lightweight spec kit for Claude Code that sharpens your specifications through structured interviews"
   },
   "plugins": [
     {
-      "name": "speck",
-      "source": "./plugins/speck",
+      "name": "interview",
+      "source": "./plugins/interview",
       "description": "Specification-only feature planning for .NET/C# projects. Produces a markdown spec capturing requirements, prohibitions, decision trees, and escalation boundaries.",
       "version": "1.0.0",
       "author": {
@@ -18,9 +18,9 @@
       "homepage": "https://github.com/rasmusHochreuter/speck",
       "repository": "https://github.com/rasmusHochreuter/speck",
       "license": "MIT",
-      "keywords": ["spec", "specification", "planning", "dotnet", "csharp"],
+      "keywords": ["spec", "specification", "planning", "interview", "dotnet", "csharp"],
       "category": "development-workflows",
-      "tags": ["spec-driven", "feature-planning", "brownfield", "dotnet"]
+      "tags": ["spec-driven", "feature-planning", "brownfield", "dotnet", "interview"]
     }
   ]
 }

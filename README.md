@@ -1,17 +1,17 @@
-# Speck
+# TheInterviewer
 
-**A lightweight spec kit for Claude Code that helps you create high quality specifications.**
+**A lightweight spec kit for Claude Code that sharpens your specifications through structured interviews.**
 
-Turn a user story, ticket, or feature idea into a specifcation that Claude Code can implement correctly on the first pass.
+Turn a user story, ticket, or feature idea into a specification that Claude Code can implement correctly on the first pass.
 
-You run `/speck feature-name`, paste your business requirements, and Claude fills in the technical gaps — codebase patterns, prohibitions, decision trees, edge cases — through a structured interview using multiple-choice questions grounded in your actual code. The output is a single markdown spec. You review it, then a fresh Claude Code session implements it cleanly.
+You run `/interview feature-name`, paste your business requirements, and Claude fills in the technical gaps — codebase patterns, prohibitions, decision trees, edge cases — through a structured interview using multiple-choice questions grounded in your actual code. The output is a single markdown spec. You review it, then a fresh Claude Code session implements it cleanly.
 
 ```
 /plugin marketplace add rasmusHochreuter/speck  # add the registry
-/plugin install speck@speck-marketplace         # install the plugin
+/plugin install interview@interview-marketplace # install the plugin
 
-/speck order-cancellation           # plan: interview → spec
-/speck:implement order-cancellation # implement: spec → code
+/interview order-cancellation           # plan: interview -> spec
+/interview:implement order-cancellation # implement: spec -> code
 ```
 
 The spec is a one-shot planning artifact, not a living document. Once the feature is implemented, you don't update the spec and re-run implementation. Bugs and enhancements are handled the normal way — you just tell Claude what to fix. The spec captured your intent, Claude internalized it, and then it got out of the way.
@@ -20,12 +20,12 @@ The spec is a one-shot planning artifact, not a living document. Once the featur
 
 ## Why This Exists
 
-Other spec tools ([spec-kit](https://github.com/github/spec-kit), [Pimzino](https://github.com/Pimzino/claude-code-spec-workflow), [adrianpuiu](https://github.com/adrianpuiu/specification-document-generator)) pioneered spec-driven development for AI agents. Speck borrows ideas from all of them (see [Acknowledgments](#acknowledgments)), but takes a different approach based on the methodology from [Focus on "Don'ts" to Build Systems That Know When to Say No](https://thenewstack.io/focus-on-donts-to-build-systems-that-know-when-to-say-no/):
+Other spec tools ([spec-kit](https://github.com/github/spec-kit), [Pimzino](https://github.com/Pimzino/claude-code-spec-workflow), [adrianpuiu](https://github.com/adrianpuiu/specification-document-generator)) pioneered spec-driven development for AI agents. TheInterviewer borrows ideas from all of them (see [Acknowledgments](#acknowledgments)), but takes a different approach based on the methodology from [Focus on "Don'ts" to Build Systems That Know When to Say No](https://thenewstack.io/focus-on-donts-to-build-systems-that-know-when-to-say-no/):
 
-- **Don'ts over docs.** Existing tools focus on what to build. Speck adds a dedicated phase for what to *never* do — prohibitions, decision trees for ambiguous cases, and escalation boundaries. Every don't gets a matching negative test.
+- **Don'ts over docs.** Existing tools focus on what to build. TheInterviewer adds a dedicated phase for what to *never* do — prohibitions, decision trees for ambiguous cases, and escalation boundaries. Every don't gets a matching negative test.
 - **The spec stays out of the code.** No `// REQ-001`, no `// See spec section 4.2`, no traceability IDs. The implementing session internalizes the spec and writes code as if a developer simply knew the domain.
 - **Codebase-grounded questions.** Phase 0 silently reads your project, so every question references your actual patterns — "I see three error handling approaches in your codebase, which fits here?" instead of "How should errors be handled?"
-- **Zero setup.** If your `CLAUDE.md` lacks project conventions, Speck offers to append them on first run. Every future session reuses them.
+- **Zero setup.** If your `CLAUDE.md` lacks project conventions, TheInterviewer offers to append them on first run. Every future session reuses them.
 
 ## How It Works
 
@@ -58,7 +58,7 @@ Recognition beats recall. Picking from informed options is faster, more accurate
 | 4 | **Decisions** | Drafts a decision tree, you correct it |
 | 5 | **Relationships** | Domain rules, tier differences, temporal constraints |
 | 6 | **Guardrails** | Failure modes, retry strategies, observability |
-| 7 | **Acceptance Criteria** | Drafts test criteria, you validate with ✅/✏️/❌/➕ |
+| 7 | **Acceptance Criteria** | Drafts test criteria, you validate with checkmarks |
 | 8 | **Self-Audit** | Silently verifies consistency before writing the spec |
 
 Output: `.claude/specs/<feature-name>.md`
@@ -71,19 +71,19 @@ Add the marketplace and install the plugin:
 
 ```shell
 /plugin marketplace add rasmusHochreuter/speck
-/plugin install speck@speck-marketplace
+/plugin install interview@interview-marketplace
 ```
 
-Or browse interactively — run `/plugin`, go to the **Discover** tab, and select **speck**.
+Or browse interactively — run `/plugin`, go to the **Discover** tab, and select **interview**.
 
 ### Option 2: Copy into your project
 
 ```bash
 # From the repo root
-mkdir -p .claude/skills/speck/examples .claude/skills/speck-implement
-cp skill/SKILL.md .claude/skills/speck/
-cp skill/examples/order-cancellation-spec.md .claude/skills/speck/examples/
-cp skill/implement/SKILL.md .claude/skills/speck-implement/
+mkdir -p .claude/skills/interview/examples .claude/skills/interview-implement
+cp skill/SKILL.md .claude/skills/interview/
+cp skill/examples/order-cancellation-spec.md .claude/skills/interview/examples/
+cp skill/implement/SKILL.md .claude/skills/interview-implement/
 ```
 
 Commit the skills with your repo so the whole team has them.
@@ -93,7 +93,7 @@ Commit the skills with your repo so the whole team has them.
 ### Step 1: Plan the feature
 
 ```
-/speck order-cancellation
+/interview order-cancellation
 ```
 
 Paste your user story, ticket description, or just describe the feature. Claude reads your codebase, walks you through the 8-phase interview to fill in the technical details, and saves the spec to `.claude/specs/order-cancellation.md`.
@@ -101,7 +101,7 @@ Paste your user story, ticket description, or just describe the feature. Claude 
 ### Step 2: Implement the feature
 
 ```
-/speck:implement order-cancellation
+/interview:implement order-cancellation
 ```
 
 This launches a fresh context window dedicated to coding. It reads the spec, the reference implementation, and your CLAUDE.md conventions, then implements the feature following your established patterns — without you repeating anything.
@@ -112,14 +112,14 @@ Every team's project is different. There are two levels of customization:
 
 ### Level 1: CLAUDE.md conventions (per-project, no skill edits needed)
 
-Your `CLAUDE.md` can include a conventions section that captures your technology preferences. Speck offers to generate this on your first run if it's missing, but you can edit it anytime to:
+Your `CLAUDE.md` can include a conventions section that captures your technology preferences. TheInterviewer offers to generate this on your first run if it's missing, but you can edit it anytime to:
 
 - **Ground questions in your tools** — if your CLAUDE.md says "Use: NSubstitute", Claude won't offer Moq as an option
 - **Pre-populate don'ts** — "Don't use: AutoMapper" becomes a pre-checked constraint in Phase 2
 - **Set naming conventions** — so the spec's file list and entity names match your patterns
 - **Flag deprecated patterns** — so Claude never suggests the old `OrderService` class
 
-These conventions pre-populate constraints in Phase 2, so you confirm them (✅/❌) instead of re-stating them for every feature.
+These conventions pre-populate constraints in Phase 2, so you confirm them instead of re-stating them for every feature.
 
 Two convention templates are available in [`templates/`](templates/) if you'd prefer to start from a template:
 
@@ -163,35 +163,35 @@ All three demonstrate the same spec structure — the difference is how many sec
 ## Repo Structure
 
 ```
-speck/
+theinterviewer/
 ├── .claude-plugin/
-│   └── marketplace.json             ← plugin marketplace catalog
-├── README.md                        ← you are here
+│   └── marketplace.json             <- plugin marketplace catalog
+├── README.md                        <- you are here
 ├── LICENSE
 ├── examples/
-│   └── dotnet/                      ← .NET/C# examples (add your stack here!)
+│   └── dotnet/                      <- .NET/C# examples (add your stack here!)
 │       ├── 01-product-rating.md
 │       ├── 02-team-member-invite.md
 │       └── 03-order-cancellation.md
 ├── plugins/
-│   └── speck/                       ← plugin package (installed via marketplace)
+│   └── interview/                   <- plugin package (installed via marketplace)
 │       ├── .claude-plugin/
 │       │   └── plugin.json
 │       └── skills/
-│           ├── speck/
+│           ├── interview/
 │           │   ├── SKILL.md
 │           │   └── examples/
 │           │       └── order-cancellation-spec.md
-│           └── speck-implement/
-│               └── SKILL.md         ← /speck:implement command
+│           └── interview-implement/
+│               └── SKILL.md         <- /interview:implement command
 ├── skill/
-│   ├── SKILL.md                     ← the planning skill (for manual installation)
+│   ├── SKILL.md                     <- the planning skill (for manual installation)
 │   ├── implement/
-│   │   └── SKILL.md                 ← the implementation skill
+│   │   └── SKILL.md                 <- the implementation skill
 │   └── examples/
 │       └── order-cancellation-spec.md
 └── templates/
-    └── dotnet/               ← .NET/C# convention templates (add your stack here!)
+    └── dotnet/               <- .NET/C# convention templates (add your stack here!)
         ├── claude-md-conventions.md
         └── claude-md-conventions-alt.md
 ```
@@ -206,11 +206,11 @@ speck/
 
 This skill wouldn't exist without ideas and inspiration from the following projects and people:
 
-**[GitHub spec-kit](https://github.com/github/spec-kit)** — The original spec-driven development toolkit. Its multi-phase workflow (specify → plan → tasks → implement), `/speckit.clarify` for ambiguity resolution, `/speckit.analyze` for consistency checking, and constitution/principles concept all influenced Speck's design. The `[NEEDS CLARIFICATION]` markers and self-consistency audit phase are direct adaptations of spec-kit ideas. The observation that spec traceability IDs (REQ-001, etc.) pollute implementation code is what led to Speck's anti-spec-pollution approach.
+**[GitHub spec-kit](https://github.com/github/spec-kit)** — The original spec-driven development toolkit. Its multi-phase workflow (specify -> plan -> tasks -> implement), `/speckit.clarify` for ambiguity resolution, `/speckit.analyze` for consistency checking, and constitution/principles concept all influenced TheInterviewer's design. The `[NEEDS CLARIFICATION]` markers and self-consistency audit phase are direct adaptations of spec-kit ideas. The observation that spec traceability IDs (REQ-001, etc.) pollute implementation code is what led to TheInterviewer's anti-spec-pollution approach.
 
-**[Pimzino/claude-code-spec-workflow](https://github.com/Pimzino/claude-code-spec-workflow)** — Introduced the steering documents concept (`product.md`, `tech.md`, `structure.md`) that inspired Speck's convention-based approach. Its approach to sub-agent validation and token-optimized context sharing informed the session separation strategy.
+**[Pimzino/claude-code-spec-workflow](https://github.com/Pimzino/claude-code-spec-workflow)** — Introduced the steering documents concept (`product.md`, `tech.md`, `structure.md`) that inspired TheInterviewer's convention-based approach. Its approach to sub-agent validation and token-optimized context sharing informed the session separation strategy.
 
-**[adrianpuiu/specification-document-generator](https://github.com/adrianpuiu/specification-document-generator)** (and the earlier [claude-skills-marketplace](https://github.com/adrianpuiu/claude-skills-marketplace)) — Demonstrated a rigorous six-phase architecture framework with verified research, scope boundaries (in/out/deferred), and validation scripts. The explicit scope boundary section in Speck specs is a direct adaptation.
+**[adrianpuiu/specification-document-generator](https://github.com/adrianpuiu/specification-document-generator)** (and the earlier [claude-skills-marketplace](https://github.com/adrianpuiu/claude-skills-marketplace)) — Demonstrated a rigorous six-phase architecture framework with verified research, scope boundaries (in/out/deferred), and validation scripts. The explicit scope boundary section in TheInterviewer specs is a direct adaptation.
 
 **[obra/superpowers](https://github.com/obra/superpowers)** — General-purpose design exploration skill for Claude Code that demonstrated the value of structured, multi-phase AI workflows for planning before implementation.
 
