@@ -10,7 +10,7 @@ You run `/interview feature-name`, paste your business requirements, and Claude 
 /plugin marketplace add rasmusHochreuter/TheInterviewer  # add the registry
 /plugin install interview@interview-marketplace # install the plugin
 
-/interview users need to reset their password via email
+/interview Add a new feature that allows the users to change password
 ```
 
 The spec is a one-shot planning artifact, not a living document. Once the feature is implemented, you don't update the spec and re-run implementation. Bugs and enhancements are handled the normal way — you just tell Claude what to fix. The spec captured your intent, Claude internalized it, and then it got out of the way.
