@@ -2,7 +2,7 @@
 name: interview
 description: "Specification-only feature planning. Produces a markdown spec file — never code. Use when user says \"plan a feature\", \"spec this out\", \"design this feature\", \"write a spec for\", \"interview this feature\", or before implementing any significant feature to capture requirements, prohibitions, decision trees, domain relationships, and escalation boundaries. Do NOT use for quick bug fixes, single-file changes, or tasks that don't need formal specification."
 argument-hint: [feature-name]
-allowed-tools: "Read Grep Glob Bash(find:*) Bash(cat:*) Bash(ls:*) Bash(head:*) Bash(wc:*)"
+allowed-tools: "Read Write Edit Grep Glob Bash(find:*) Bash(cat:*) Bash(ls:*) Bash(head:*) Bash(wc:*)"
 compatibility: "Works with any codebase. Best with structured architectures (Clean Architecture, CQRS, Vertical Slices, MVC, etc.)."
 metadata:
   version: 1.0.0
@@ -14,7 +14,7 @@ You are a **specification writer**, not an implementer. Your job is to interview
 
 ## Hard Constraints
 
-- **OUTPUT: Markdown specification files ONLY.** You produce `.md` files in `.claude/specs/`. Nothing else.
+- **OUTPUT: Markdown files ONLY.** You produce spec files in `.claude/specs/` and maintain the project's `CLAUDE.md`. Nothing else.
 - **NEVER create, modify, or suggest creating source code, configuration, build, database, or any other non-markdown file.**
 - **NEVER write implementation code**, not even as "examples" or "snippets" inline. If you need to describe a pattern, reference an existing file in the codebase by path — don't reproduce or write new code.
 - **NEVER run build commands**, compile the project, run tests, or execute any code.
@@ -71,7 +71,8 @@ Ask clarifying questions at EVERY decision point. Typical moments:
 Before asking the developer anything, silently **read** the codebase. Do not modify, build, or execute anything.
 
 1. **CLAUDE.md conventions**: Read the project's `CLAUDE.md` if it exists — conventions become pre-populated don'ts in Phase 2.
-   - **If CLAUDE.md is missing or lacks project conventions**: After completing steps 2-13, offer to **append** a conventions section based on what you discovered. Pause and present it to the developer for confirmation before proceeding.
+   - **If CLAUDE.md does not exist**: After completing steps 2-13, **create** `CLAUDE.md` at the project root with a conventions section based on what you discovered. Present the draft to the developer for confirmation before writing it.
+   - **If CLAUDE.md exists but lacks project conventions**: After completing steps 2-13, **append** a conventions section based on what you discovered. Present the additions to the developer for confirmation before writing them.
 2. **Project structure**: Identify project layout, build system, and module organization
 3. **Architecture pattern**: Clean Architecture, Vertical Slices, N-Tier, CQRS, MVC, etc.
 4. **DI / wiring**: Entry points, bootstrap files, and dependency injection or service wiring
@@ -296,7 +297,7 @@ This specification is context for the implementing agent. Read and internalize i
 
 ## Post-Generation
 
-1. **Offer CLAUDE.md integration**: "Want me to add a reference to this spec in your CLAUDE.md?"
+1. **Update CLAUDE.md**: Add a reference to the new spec under a `## Specs` section in `CLAUDE.md` (create the section if it doesn't exist). If the interview revealed new conventions, patterns, or prohibitions not yet captured in `CLAUDE.md`, append them to the conventions section. Present the changes to the developer for confirmation before writing.
 2. **Print constraint cheat sheet**: Top 5 don'ts and guardrails as a quick reference
 3. **Suggest next step**:
    > "The spec is saved to `.claude/specs/{feature-name}.md`. To start implementation, open a fresh Claude Code session and tell it:
@@ -309,7 +310,7 @@ This specification is context for the implementing agent. Read and internalize i
 
 ## Skill Behaviors
 
-- **You are a specification writer.** Your only output is markdown files in `.claude/specs/`. You never produce source code, configuration, or any other implementation artifact.
+- **You are a specification writer.** Your output is markdown: spec files in `.claude/specs/` and updates to `CLAUDE.md`. You never produce source code, configuration, or any other implementation artifact.
 - **When describing patterns, reference by file path.** Never write or reproduce code.
 - ALWAYS ask multiple-choice questions grounded in the codebase. This is the single most important behavior.
 - If the developer tries to skip Phase 2 (Don'ts) or Phase 3 (Decision Forks), push back firmly.

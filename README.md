@@ -24,7 +24,7 @@ Other spec tools ([spec-kit](https://github.com/github/spec-kit), [Pimzino](http
 - **Don'ts over docs.** Existing tools focus on what to build. TheInterviewer adds a dedicated phase for what to *never* do — prohibitions, decision trees for ambiguous cases, and escalation boundaries. Every don't gets a matching negative test.
 - **The spec stays out of the code.** No `// REQ-001`, no `// See spec section 4.2`, no traceability IDs. The implementing session internalizes the spec and writes code as if a developer simply knew the domain.
 - **Codebase-grounded questions.** Phase 0 silently reads your project, so every question references your actual patterns — "I see three error handling approaches in your codebase, which fits here?" instead of "How should errors be handled?"
-- **Zero setup.** If your `CLAUDE.md` lacks project conventions, TheInterviewer offers to append them on first run. Every future session reuses them.
+- **Zero setup.** If your project doesn't have a `CLAUDE.md`, TheInterviewer creates one on first run with conventions discovered from your codebase. Every future interview keeps it up to date.
 
 ## How It Works
 
@@ -50,7 +50,7 @@ Recognition beats recall. Picking from informed options is faster, more accurate
 
 | # | Phase | What Happens |
 |---|-------|--------------|
-| 0 | **Codebase Recon** | Claude silently reads your architecture, DI, error handling, test patterns. If `CLAUDE.md` lacks conventions, offers to append them based on what it found |
+| 0 | **Codebase Recon** | Claude silently reads your architecture, DI, error handling, test patterns. Creates `CLAUDE.md` if missing, or appends conventions if lacking |
 | 1 | **Questions** | Presents findings, asks about reference implementation and scope |
 | 2 | **Requirements** | Guided choices about entry points, data, integrations |
 | 3 | **Don'ts** | Presents inferred constraints for confirmation, probes for prohibitions |
@@ -110,7 +110,7 @@ TheInterviewer works with any language and framework — Phase 0 reconnaissance 
 
 ### Level 1: CLAUDE.md conventions (per-project, no skill edits needed)
 
-Your `CLAUDE.md` can include a conventions section that captures your technology preferences. TheInterviewer offers to generate this on your first run if it's missing, but you can edit it anytime to:
+Your `CLAUDE.md` captures project conventions that ground every interview. TheInterviewer creates this file on first run if it doesn't exist, and updates it after each interview with new conventions discovered during the process. You can edit it anytime to:
 
 - **Ground questions in your tools** — if your CLAUDE.md says "Use: NSubstitute", Claude won't offer Moq as an option
 - **Pre-populate don'ts** — "Don't use: AutoMapper" becomes a pre-checked constraint in Phase 2
