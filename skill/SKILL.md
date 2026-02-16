@@ -5,7 +5,7 @@ argument-hint: [feature-name]
 allowed-tools: "Read Write Edit Grep Glob Bash(find:*) Bash(cat:*) Bash(ls:*) Bash(head:*) Bash(wc:*)"
 compatibility: "Works with any codebase. Best with structured architectures (Clean Architecture, CQRS, Vertical Slices, MVC, etc.)."
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Feature Planning — "Know When to Say No"
