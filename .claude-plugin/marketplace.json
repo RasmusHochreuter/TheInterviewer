@@ -10,7 +10,7 @@
     {
       "name": "interview",
       "source": "./plugins/interview",
-      "description": "Specification-only feature planning for .NET/C# projects. Produces a markdown spec capturing requirements, prohibitions, decision trees, and escalation boundaries.",
+      "description": "Specification-only feature planning. Produces a markdown spec capturing requirements, prohibitions, decision trees, and escalation boundaries.",
       "version": "1.1.0",
       "author": {
         "name": "Rasmus Hochreuter"
@@ -18,9 +18,9 @@
       "homepage": "https://github.com/rasmusHochreuter/TheInterviewer",
       "repository": "https://github.com/rasmusHochreuter/TheInterviewer",
       "license": "MIT",
-      "keywords": ["spec", "specification", "planning", "interview", "dotnet", "csharp"],
+      "keywords": ["spec", "specification", "planning", "interview"],
       "category": "development-workflows",
-      "tags": ["spec-driven", "feature-planning", "brownfield", "dotnet", "interview"]
+      "tags": ["spec-driven", "feature-planning", "brownfield", "interview"]
     }
   ]
 }
