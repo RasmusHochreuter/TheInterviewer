@@ -5,7 +5,7 @@ argument-hint: [feature-name]
 allowed-tools: "Read Write Edit Grep Glob Bash(find:*) Bash(cat:*) Bash(ls:*) Bash(head:*) Bash(wc:*)"
 compatibility: "Works with any codebase. Best with structured architectures (Clean Architecture, CQRS, Vertical Slices, MVC, etc.)."
 metadata:
-  version: 1.2.1
+  version: 1.3.0
 ---
 
 # Feature Planning — "Know When to Say No"
@@ -376,25 +376,27 @@ This specification is context for the implementing agent. Read and internalize i
    ```
    ──────────────────────────────────────────
    SPEC SCORECARD
-   Ready: ✅ YES / ❌ NO
-   Score: ▰▰▰▰▰▰▰▰▰▱ 0.90
+   Score:        🟢 ▰▰▰▰▰▰▰▰▰▱ 0.90
    ──────────────────────────────────────────
 
-   Completeness  ▰▰▰▰▰▰▰▰▰▱ 0.90
-   Clarity       ▰▰▰▰▰▰▰▰▱▱ 0.80
-   Constraints   ▰▰▰▰▰▰▰▰▰▱ 0.90
-   Specificity   ▰▰▰▰▰▱▱▱▱▱ 0.55
+   Completeness  🟢 ▰▰▰▰▰▰▰▰▰▱ 0.90
+   Clarity       🟢 ▰▰▰▰▰▰▰▰▱▱ 0.80
+   Constraints   🟢 ▰▰▰▰▰▰▰▰▰▱ 0.90
+   Specificity   🟡 ▰▰▰▰▰▱▱▱▱▱ 0.55
 
    Weakest: {Axis Name}
    ► {Finding 1 referencing spec section}
    ► {Finding 2 referencing spec section}
    ► {Finding 3 referencing spec section}
+
+   Ready for implementation: ✅ YES / ❌ NO
    ──────────────────────────────────────────
    ```
 
    Bars use `▰` (filled) and `▱` (empty), 10 blocks per bar. Count = round(score x 10).
+   Each bar is prefixed with a traffic-light dot: 🟢 >= 0.70, 🟡 0.50–0.69, 🔴 < 0.50.
 
-   - If **Ready: YES**: replace findings with `All axes above threshold. Spec is implementation-ready.`
+   - If **Ready: YES**: omit the Weakest/findings section entirely.
    - If **Ready: NO** and any axis < 0.50: append `Recommendation: Address the findings above, then re-run /interview to refine.`
 
 3. **Suggest next step**:
