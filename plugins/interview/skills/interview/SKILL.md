@@ -374,22 +374,22 @@ This specification is context for the implementing agent. Read and internalize i
 2. **Display Spec Scorecard**: Render the scorecard using the bar chart format below. Show readiness (YES or NO), balance, all 4 axis scores, flag the weakest axis, and list up to 3 actionable findings referencing specific spec sections.
 
    ```
-   ┌──────────────────────────────────────────┐
-   │ SPEC SCORECARD                           │
-   │ Ready: YES / NO     Balance: ▰▰▰▰▰▰▰▰▰▱  │
-   ├──────────────────────────────────────────┤
-   │                                          │
-   │ Completeness  ▰▰▰▰▰▰▰▰▰▱  0.90           │
-   │ Clarity       ▰▰▰▰▰▰▰▰▱▱  0.80           │
-   │ Constraints   ▰▰▰▰▰▰▰▰▰▱  0.90           │
-   │ Specificity   ▰▰▰▰▰▱▱▱▱▱  0.55           │
-   │                                          │
-   │ Weakest: {Axis Name}                     │
-   │ - {Finding 1 referencing spec section}   │
-   │ - {Finding 2 referencing spec section}   │
-   │ - {Finding 3 referencing spec section}   │
-   │                                          │
-   └──────────────────────────────────────────┘
+   ──────────────────────────────────────────
+   SPEC SCORECARD
+   Ready: ✅ YES / ❌ NO
+   ──────────────────────────────────────────
+
+   Balance       ▰▰▰▰▰▰▰▰▰▱ 0.90
+   Completeness  ▰▰▰▰▰▰▰▰▰▱ 0.90
+   Clarity       ▰▰▰▰▰▰▰▰▱▱ 0.80
+   Constraints   ▰▰▰▰▰▰▰▰▰▱ 0.90
+   Specificity   ▰▰▰▰▰▱▱▱▱▱ 0.55
+
+   Weakest: {Axis Name}
+   ► {Finding 1 referencing spec section}
+   ► {Finding 2 referencing spec section}
+   ► {Finding 3 referencing spec section}
+   ──────────────────────────────────────────
    ```
 
    Bars use `▰` (filled) and `▱` (empty), 10 blocks per bar. Count = round(score x 10).
