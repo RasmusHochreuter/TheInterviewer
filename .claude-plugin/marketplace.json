@@ -11,7 +11,7 @@
       "name": "interview",
       "source": "./plugins/interview",
       "description": "Specification-only feature planning. Produces a markdown spec capturing requirements, prohibitions, decision trees, and escalation boundaries.",
-      "version": "1.1.0",
+      "version": "1.2.1",
       "author": {
         "name": "Rasmus Hochreuter"
       },
