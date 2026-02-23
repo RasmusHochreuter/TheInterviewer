@@ -166,7 +166,7 @@ See `references/questioning-examples.md#phase-6` for example format.
 
 ---
 
-## Phase 7: Self-Audit + Health Check (Claude does this silently before writing the spec)
+## Phase 7: Self-Audit + Scorecard (Claude does this silently before writing the spec)
 
 Before generating the final spec file, silently run two passes. Do NOT ask the developer — fix issues yourself or flag as `[NEEDS CLARIFICATION]`.
 
@@ -179,7 +179,7 @@ Before generating the final spec file, silently run two passes. Do NOT ask the d
 5. **Scope is respected.** Nothing refers to "Out of Scope" or "Deferred" items.
 6. **Conventions file (`AGENTS.md` / `CLAUDE.md`) conventions are honored.**
 
-### Pass 2: Spec Health Check
+### Pass 2: Spec Scorecard
 
 Score the spec across 4 axes using the sub-checks below. All scoring is mechanistic and structural — count what exists, do not judge subjectively.
 
@@ -228,21 +228,14 @@ Score the spec across 4 axes using the sub-checks below. All scoring is mechanis
 - **Balance** = `1 - sqrt(variance) / mean` (population variance of 4 axis scores)
 - All scores rounded to 2 decimal places
 
-#### Verdicts (first match wins)
+#### Readiness
 
-| Verdict | Condition |
-|---------|-----------|
-| SHIP IT | All axes >= 0.75 AND balance >= 0.90 |
-| ALMOST | All axes >= 0.50 AND balance >= 0.75 AND at most 1 axis < 0.75 |
-| DRAFT | Balance >= 0.60 AND at least 2 axes >= 0.50 |
-| VAGUE | Completeness >= 0.70 BUT Clarity < 0.50 |
-| UNBOUNDED | Completeness >= 0.70 AND Clarity >= 0.60 BUT Constraints < 0.40 |
-| OVER-CONSTRAINED | Constraints >= 0.80 BUT Completeness < 0.50 |
-| SKETCH | Everything else |
+- **Ready: YES** — All axes >= 0.75 AND balance >= 0.90
+- **Ready: NO** — Anything else
 
 #### Self-repair rule
 
-If verdict is SKETCH or VAGUE: silently attempt to improve the weakest axis (add missing sections, replace weasel phrases, add `[NEEDS CLARIFICATION]` markers). Re-score once. Do not loop more than once.
+If Ready: NO and any axis < 0.50: silently attempt to improve the weakest axis (add missing sections, replace weasel phrases, add `[NEEDS CLARIFICATION]` markers). Re-score once. Do not loop more than once.
 
 ---
 
@@ -378,34 +371,33 @@ This specification is context for the implementing agent. Read and internalize i
 ## Post-Generation
 
 1. **Update the conventions file**: Add a reference to the new spec under a `## Specs` section in the conventions file identified during Phase 0 (create the section if it doesn't exist). Keep entries compact — path only, no descriptions (e.g., `- .claude/specs/password-reset.md`). If specs listed there have already been implemented or are obsolete, remove them — every token in this file is read on every future task. If the interview revealed new conventions, patterns, or prohibitions not yet captured, append them to the conventions section. Present the changes to the developer for confirmation before writing.
-2. **Display Spec Health Check**: Render the health check results using the bar chart format below. Show readiness (✅ YES if verdict is SHIP IT, ❌ NO otherwise), balance, all 4 axis scores, flag the weakest axis, and list up to 3 actionable findings referencing specific spec sections.
+2. **Display Spec Scorecard**: Render the scorecard using the bar chart format below. Show readiness (YES or NO), balance, all 4 axis scores, flag the weakest axis, and list up to 3 actionable findings referencing specific spec sections.
 
    ```
-   ┌──────────────────────────────────────────────────┐
-   │  SPEC HEALTH CHECK      Ready: ✅ YES / ❌ NO     │
-   │                              Balance: ▰▰▰▰▰▰▰▰▱▱│
-   ├──────────────────────────────────────────────────┤
-   │                                                   │
-   │  Completeness  ▰▰▰▰▰▰▰▰▰▱  0.90                │
-   │  Clarity       ▰▰▰▰▰▰▰▰▱▱  0.80                │
-   │  Constraints   ▰▰▰▰▰▰▰▰▰▱  0.90                │
-   │  Specificity   ▰▰▰▰▰▱▱▱▱▱  0.55                │
-   │                                                   │
-   │  ◄ Weakest: {Axis Name}                           │
-   │  · {Finding 1 referencing spec section}            │
-   │  · {Finding 2 referencing spec section}            │
-   │  · {Finding 3 referencing spec section}            │
-   │                                                   │
-   └──────────────────────────────────────────────────┘
+   ┌──────────────────────────────────────────┐
+   │ SPEC SCORECARD                           │
+   │ Ready: YES / NO     Balance: ▰▰▰▰▰▰▰▰▰▱  │
+   ├──────────────────────────────────────────┤
+   │                                          │
+   │ Completeness  ▰▰▰▰▰▰▰▰▰▱  0.90           │
+   │ Clarity       ▰▰▰▰▰▰▰▰▱▱  0.80           │
+   │ Constraints   ▰▰▰▰▰▰▰▰▰▱  0.90           │
+   │ Specificity   ▰▰▰▰▰▱▱▱▱▱  0.55           │
+   │                                          │
+   │ Weakest: {Axis Name}                     │
+   │ - {Finding 1 referencing spec section}   │
+   │ - {Finding 2 referencing spec section}   │
+   │ - {Finding 3 referencing spec section}   │
+   │                                          │
+   └──────────────────────────────────────────┘
    ```
 
-   Bars use `▰` (filled) and `▱` (empty), 10 blocks per bar. Count = round(score × 10).
+   Bars use `▰` (filled) and `▱` (empty), 10 blocks per bar. Count = round(score x 10).
 
-   - If **✅ YES**: replace findings with `✓ All axes above threshold. Spec is implementation-ready.`
-   - If verdict is **SKETCH**: append `Recommendation: Address the findings above, then re-run /interview to refine.`
+   - If **Ready: YES**: replace findings with `All axes above threshold. Spec is implementation-ready.`
+   - If **Ready: NO** and any axis < 0.50: append `Recommendation: Address the findings above, then re-run /interview to refine.`
 
-3. **Print constraint cheat sheet**: Top 5 don'ts and guardrails as a quick reference
-4. **Suggest next step**:
+3. **Suggest next step**:
    > "The spec is saved to `.claude/specs/{feature-name}.md`. To start implementation, open a fresh Claude Code session and tell it:
    >
    > *Implement the feature spec at `.claude/specs/{feature-name}.md`*

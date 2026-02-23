@@ -58,7 +58,7 @@ Recognition beats recall. Picking from informed options is faster, more accurate
 | 5 | **Relationships** | Domain rules, tier differences, temporal constraints |
 | 6 | **Guardrails** | Failure modes, retry strategies, observability |
 | 7 | **Acceptance Criteria** | Drafts test criteria, you validate with checkmarks |
-| 8 | **Self-Audit + Health Check** | Verifies consistency, scores spec on 4 axes (Completeness, Clarity, Constraints, Specificity), displays results |
+| 8 | **Self-Audit + Scorecard** | Verifies consistency, scores spec on 4 axes (Completeness, Clarity, Constraints, Specificity), displays results |
 
 Output: `.claude/specs/<feature-name>.md`
 
