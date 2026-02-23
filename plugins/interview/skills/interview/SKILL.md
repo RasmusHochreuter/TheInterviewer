@@ -377,9 +377,9 @@ This specification is context for the implementing agent. Read and internalize i
    ──────────────────────────────────────────
    SPEC SCORECARD
    Ready: ✅ YES / ❌ NO
+   Score: ▰▰▰▰▰▰▰▰▰▱ 0.90
    ──────────────────────────────────────────
 
-   Balance       ▰▰▰▰▰▰▰▰▰▱ 0.90
    Completeness  ▰▰▰▰▰▰▰▰▰▱ 0.90
    Clarity       ▰▰▰▰▰▰▰▰▱▱ 0.80
    Constraints   ▰▰▰▰▰▰▰▰▰▱ 0.90
