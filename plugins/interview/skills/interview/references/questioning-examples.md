@@ -76,7 +76,7 @@ After completing the 13-step codebase reconnaissance, present findings and ask:
 ## Phase 2: Don'ts Questions
 
 **Inferred don'ts (present as checklist for confirmation):**
-> "Based on what I see in the codebase (and your CLAUDE.md conventions), these constraints likely apply. Confirm, modify, or reject each:
+> "Based on what I see in the codebase (and your AGENTS.md / CLAUDE.md conventions), these constraints likely apply. Confirm, modify, or reject each:
 >
 > ✅/❌ **All DB access goes through repository interfaces** (I see `IOrderRepository`, `ICustomerRepository` — never direct `DbContext` usage in handlers)
 > ✅/❌ **HttpClient is never instantiated directly** (I see typed clients via `IHttpClientFactory`)

@@ -24,7 +24,7 @@ Other spec tools ([spec-kit](https://github.com/github/spec-kit), [Pimzino](http
 - **Don'ts over docs.** Existing tools focus on what to build. TheInterviewer adds a dedicated phase for what to *never* do — prohibitions, decision trees for ambiguous cases, and escalation boundaries. Every don't gets a matching negative test.
 - **The spec stays out of the code.** No `// REQ-001`, no `// See spec section 4.2`, no traceability IDs. The implementing session internalizes the spec and writes code as if a developer simply knew the domain.
 - **Codebase-grounded questions.** Phase 0 silently reads your project, so every question references your actual patterns — "I see three error handling approaches in your codebase, which fits here?" instead of "How should errors be handled?"
-- **Zero setup.** If your project doesn't have a `CLAUDE.md`, TheInterviewer creates one on first run with conventions discovered from your codebase. Every future interview keeps it up to date.
+- **Zero setup.** If your project doesn't have an `AGENTS.md` or `CLAUDE.md`, TheInterviewer creates one on first run with conventions discovered from your codebase. It supports both the vendor-agnostic `AGENTS.md` standard and Claude-specific `CLAUDE.md`, including projects that use `AGENTS.md` as the primary file with `CLAUDE.md` as a thin shell. Every future interview keeps your conventions up to date.
 
 ## How It Works
 
@@ -50,7 +50,7 @@ Recognition beats recall. Picking from informed options is faster, more accurate
 
 | # | Phase | What Happens |
 |---|-------|--------------|
-| 0 | **Codebase Recon** | Claude silently reads your architecture, DI, error handling, test patterns. Creates `CLAUDE.md` if missing, or appends conventions if lacking |
+| 0 | **Codebase Recon** | Claude silently reads your architecture, DI, error handling, test patterns. Detects `AGENTS.md` / `CLAUDE.md` — creates a conventions file if missing, or appends conventions if lacking |
 | 1 | **Questions** | Presents findings, asks about reference implementation and scope |
 | 2 | **Requirements** | Guided choices about entry points, data, integrations |
 | 3 | **Don'ts** | Presents inferred constraints for confirmation, probes for prohibitions |
@@ -108,11 +108,11 @@ A fresh session gives Claude the full context window for coding. The spec contai
 
 TheInterviewer works with any language and framework — Phase 0 reconnaissance adapts to whatever codebase it finds. These customization options let you fine-tune the experience:
 
-### Level 1: CLAUDE.md conventions (per-project, no skill edits needed)
+### Level 1: AGENTS.md / CLAUDE.md conventions (per-project, no skill edits needed)
 
-Your `CLAUDE.md` captures project conventions that ground every interview. TheInterviewer creates this file on first run if it doesn't exist, and updates it after each interview with new conventions discovered during the process. You can edit it anytime to:
+Your conventions file (`AGENTS.md` or `CLAUDE.md`) captures project conventions that ground every interview. TheInterviewer detects whichever your project uses — including the common pattern where `AGENTS.md` holds the actual conventions and `CLAUDE.md` is a thin shell pointing to it. If neither exists, it creates one on first run and updates it after each interview with new conventions discovered during the process. You can edit it anytime to:
 
-- **Ground questions in your tools** — if your CLAUDE.md says "Use: NSubstitute", Claude won't offer Moq as an option
+- **Ground questions in your tools** — if your conventions file says "Use: NSubstitute", Claude won't offer Moq as an option
 - **Pre-populate don'ts** — "Don't use: AutoMapper" becomes a pre-checked constraint in Phase 2
 - **Set naming conventions** — so the spec's file list and entity names match your patterns
 - **Flag deprecated patterns** — so Claude never suggests the old `OrderService` class
@@ -214,7 +214,7 @@ Issues and PRs welcome. A few ways to contribute:
 
 - **Add examples for your stack** — create a folder under `examples/` (e.g., `examples/java-spring/`, `examples/typescript-nestjs/`) with specs at varying complexity
 - **Improve the skill** — better questions, new phases, or sharper reconnaissance heuristics
-- **Convention templates** — add a CLAUDE.md convention template for your stack under `templates/`
+- **Convention templates** — add an AGENTS.md / CLAUDE.md convention template for your stack under `templates/`
 
 ## License
 

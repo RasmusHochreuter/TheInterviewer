@@ -1,15 +1,16 @@
 # CLAUDE.md Conventions
 
 > Project-wide technology choices, constraints, and conventions that apply to ALL features.
-> Copy this section into your project's `CLAUDE.md` file.
-> The `/interview` skill reads `CLAUDE.md` during Phase 0 and uses these conventions to:
+> Copy this section into your project's `AGENTS.md` or `CLAUDE.md` file.
+> The `/interview` skill reads both `AGENTS.md` and `CLAUDE.md` during Phase 0 and uses these conventions to:
 > - Ground multiple-choice questions in YOUR preferred tools (not generic options)
 > - Pre-populate don'ts in Phase 2 (you confirm ✅/❌ instead of re-stating)
 > - Ensure every spec references the correct libraries, patterns, and naming
 >
-> Note: `/interview` offers to generate this content on first run if your CLAUDE.md doesn't include it.
+> Note: `/interview` offers to generate this content on first run if your project lacks conventions.
 > This template is for teams that prefer to write conventions by hand.
-> Paste into your `CLAUDE.md` and delete or comment out anything that doesn't apply.
+> Paste into your `AGENTS.md` (vendor-agnostic, works with all AI tools) or `CLAUDE.md` (Claude-specific)
+> and delete or comment out anything that doesn't apply.
 
 ---
 

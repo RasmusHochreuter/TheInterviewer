@@ -5,7 +5,7 @@
 >
 > This example uses: Controllers, AutoMapper, Moq, Ardalis.Result, MassTransit.
 >
-> Copy this section into your project's `CLAUDE.md` file.
+> Copy this section into your project's `AGENTS.md` or `CLAUDE.md` file.
 
 ---
 
