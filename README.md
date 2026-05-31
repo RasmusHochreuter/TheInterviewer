@@ -51,16 +51,17 @@ Recognition beats recall. Picking from informed options is faster, more accurate
 | # | Phase | What Happens |
 |---|-------|--------------|
 | 0 | **Codebase Recon** | Claude silently reads your architecture, DI, error handling, test patterns. Detects `AGENTS.md` / `CLAUDE.md` — creates a conventions file if missing, or appends conventions if lacking |
-| 1 | **Questions** | Presents findings, asks about reference implementation and scope |
-| 2 | **Requirements** | Guided choices about entry points, data, integrations |
-| 3 | **Don'ts** | Presents inferred constraints for confirmation, probes for prohibitions |
-| 4 | **Decisions** | Drafts a decision tree, you correct it |
-| 5 | **Relationships** | Domain rules, tier differences, temporal constraints |
-| 6 | **Guardrails** | Failure modes, retry strategies, observability |
-| 7 | **Acceptance Criteria** | Drafts test criteria, you validate with checkmarks |
-| 8 | **Self-Audit + Scorecard** | Verifies consistency, scores spec on 4 axes (Completeness, Clarity, Constraints, Specificity), displays results |
+| 1 | **Requirements & Domain** | Guided choices about reference implementation, scope, entry points, data, integrations, plus domain context — tier differences, temporal constraints, domain events |
+| 2 | **Don'ts** | Presents inferred constraints for confirmation, probes for prohibitions, pushes for disaster scenarios |
+| 3 | **Decision Forks & Guardrails** | Drafts a decision tree you correct, sets escalation boundaries per branch, then failure modes, retry strategies, rate limiting, and observability |
+| 4 | **Acceptance Criteria** | Drafts test criteria, you validate with checkmarks |
+| 5 | **Self-Audit + Scorecard** | Verifies consistency, scores spec on 4 axes (Completeness, Clarity, Constraints, Specificity), displays results |
 
 Output: `.claude/specs/<feature-name>.md`
+
+The interview is heavy on questions by design — every decision point is a native multiple-choice prompt grounded in your code. The phases above just group those questions; a complex feature may produce many questions per phase.
+
+> **Runs on Opus with high reasoning.** The skill pins itself to the latest Opus model (`model: opus`) at an elevated thinking budget (`effort: xhigh`) while it runs, so interviews always get the strongest reasoning regardless of the model your session is set to. The override lasts for the duration of the interview turn and reverts to your session model afterward — it does not change your default.
 
 ## Installation
 
@@ -132,7 +133,7 @@ For deeper changes, edit `SKILL.md` directly. Common modifications:
 The skill saves specs to `.claude/specs/{feature-name}.md`. If you prefer a different location (e.g., `docs/specs/` or `specs/`), find the output path in the `## Output` section and the `## Post-Generation` section and update both.
 
 **Add or remove phases:**
-If your team doesn't need the Domain Rules & Exceptions table (Phase 4), or wants an additional phase for security review, edit the phase list. Each phase is a standalone `## Phase N` section.
+If your team doesn't need the Domain Rules & Exceptions table, or wants an additional phase for security review, edit the phase list. Each phase is a standalone `## Phase N` section.
 
 **Change the spec template:**
 The output template (the markdown structure at the bottom of SKILL.md) can be modified. For example:
@@ -176,19 +177,27 @@ theinterviewer/
 │       ├── .claude-plugin/
 │       │   └── plugin.json
 │       └── skills/
-│           └── interview/
+│           └── interview/           <- CANONICAL source of the skill — edit here
 │               ├── SKILL.md
+│               ├── references/
+│               │   └── questioning-examples.md
 │               └── examples/
 │                   └── order-cancellation-spec.md
-├── skill/
-│   ├── SKILL.md                     <- the interview skill (for manual installation)
+├── skill/                           <- generated mirror for manual install (do not edit by hand)
+│   ├── SKILL.md
+│   ├── references/
+│   │   └── questioning-examples.md
 │   └── examples/
 │       └── order-cancellation-spec.md
+├── scripts/
+│   └── sync-skill.ps1               <- regenerates skill/ from the canonical plugin copy
 └── templates/
     └── dotnet/               <- .NET/C# convention templates (add your stack here!)
         ├── claude-md-conventions.md
         └── claude-md-conventions-alt.md
 ```
+
+> **Editing the skill:** `plugins/interview/skills/interview/` is the single source of truth. After editing it, run `./scripts/sync-skill.ps1` to regenerate the `skill/` mirror (or `./scripts/sync-skill.ps1 -Check` to verify they match). Never hand-edit `skill/` — your changes will be overwritten on the next sync.
 
 ## Tips
 

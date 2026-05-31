@@ -2,10 +2,12 @@
 name: interview
 description: "Specification-only feature planning. Produces a markdown spec file — never code. Use when user says \"plan a feature\", \"spec this out\", \"design this feature\", \"write a spec for\", \"interview this feature\", or before implementing any significant feature to capture requirements, prohibitions, decision trees, domain relationships, and escalation boundaries. Do NOT use for quick bug fixes, single-file changes, or tasks that don't need formal specification."
 argument-hint: [feature-name]
-allowed-tools: "Read Write Edit Grep Glob AskUserQuestion Bash(find:*) Bash(cat:*) Bash(ls:*) Bash(head:*) Bash(wc:*)"
+allowed-tools: "Read, Write, Edit, Grep, Glob, AskUserQuestion"
 compatibility: "Works with any codebase. Best with structured architectures (Clean Architecture, CQRS, Vertical Slices, MVC, etc.)."
+model: opus
+effort: xhigh
 metadata:
-  version: 1.4.0
+  version: 1.5.0
 ---
 
 # Feature Planning — "Know When to Say No"
@@ -69,9 +71,11 @@ Ask clarifying questions via `AskUserQuestion` at EVERY decision point. Typical 
 
 ### Question Cadence
 
-- Ask **2-3 grouped questions per phase** using `AskUserQuestion` (up to 4 questions per call), not 10 individual ones
+Questions are the whole point of this skill — ask freely and drill into every ambiguity. The streamlining in this version is about **phases, not questions**: there are fewer phase boundaries (4 interactive phases instead of 6), but each phase stays as thorough as the feature warrants.
+
+- Ask **2-3 grouped questions per phase** using `AskUserQuestion` (up to 4 questions per call), not 10 individual ones. Use multiple calls within a phase when a topic has depth.
 - After each `AskUserQuestion` response, **summarize what you understood** before moving on
-- If an answer raises a follow-up, ask it immediately via another `AskUserQuestion` call
+- If an answer raises a follow-up, ask it immediately via another `AskUserQuestion` call. Never skip a follow-up to save time.
 - At the end of each phase, use `AskUserQuestion` with a single confirmation question: "Anything I missed or got wrong before we move on?" with options like "Looks good", "I have corrections", "I want to add something"
 
 ---
@@ -112,9 +116,19 @@ After reconnaissance, present a brief summary of findings, then use `AskUserQues
 
 ---
 
-## Phase 1: Requirements via Guided Choices
+## Phase 1: Requirements & Domain
 
-Instead of asking "what should this feature do?", guide with informed options grounded in the codebase. Use `AskUserQuestion` to cover entry points, data model needs, and integration requirements. Each answer should trigger 1-2 follow-up `AskUserQuestion` calls. See `references/questioning-examples.md#phase-1` for example question patterns.
+Instead of asking "what should this feature do?", guide with informed options grounded in the codebase. This phase covers **what the feature does** and **the domain it lives in** — keep asking until both are pinned down.
+
+**Requirements** — cover entry points, data model needs, and integration requirements via `AskUserQuestion`. Each answer should trigger 1-2 follow-up `AskUserQuestion` calls. See `references/questioning-examples.md#phase-1`.
+
+**Domain relationships** — present what you found about the domain model briefly, then ask about:
+
+- **Tier differentiation**: Does behavior vary by customer/entity tier?
+- **Temporal constraints**: Time-based behavior differences?
+- **Domain events**: Should this feature produce or consume events?
+
+These three fit in a single `AskUserQuestion` call. Skip a topic only if Phase 0 made the answer obvious (e.g., no tiers exist in the domain). See `references/questioning-examples.md#phase-4` for the domain question patterns.
 
 ---
 
@@ -128,42 +142,28 @@ See `references/questioning-examples.md#phase-2` for example question patterns.
 
 ---
 
-## Phase 3: The Decision Forks (Branching Logic & Edge Cases)
+## Phase 3: Decision Forks & Guardrails
+
+This phase covers **branching behavior** and **failure handling** — both define what happens at the boundaries.
+
+**Decision forks:**
 
 1. **Draft a decision tree** yourself based on what you know, then present it using `AskUserQuestion` with `preview` to show the tree and ask the developer to validate or correct it.
 2. **Ask about branch priority** when conditions overlap via `AskUserQuestion`.
 3. **For each branch, ask about the human escalation boundary** via `AskUserQuestion`: fully automated, flagged for review, requires approval, or always escalated.
 
-See `references/questioning-examples.md#phase-3` for example question patterns.
-
----
-
-## Phase 4: Relationships & Exceptions (Domain Context)
-
-Present what you found about the domain model briefly, then use `AskUserQuestion` to ask about:
-
-- **Tier differentiation**: Does behavior vary by customer/entity tier?
-- **Temporal constraints**: Time-based behavior differences?
-- **Domain events**: Should this feature produce or consume events?
-
-These three topics fit well as 3 questions in a single `AskUserQuestion` call. See `references/questioning-examples.md#phase-4` for example question patterns.
-
----
-
-## Phase 5: Guardrails (Confidence & Escalation Boundaries)
-
-Use `AskUserQuestion` to ask the developer to pick behaviors for:
+**Guardrails** — use `AskUserQuestion` to pick behaviors for:
 
 - External dependency unavailability (fail fast / retry / queue / degrade)
 - Unexpected data mid-operation (abort / skip / log)
 - Rate limiting needs (none / simple / tiered / circuit breaker)
 - Observability level (minimal / moderate / high / regulated)
 
-These four topics fit perfectly as 4 questions in a single `AskUserQuestion` call. See `references/questioning-examples.md#phase-5` for example question patterns.
+The four guardrail topics fit in a single `AskUserQuestion` call. See `references/questioning-examples.md#phase-3` and `#phase-5` for example patterns.
 
 ---
 
-## Phase 6: Acceptance Criteria (Collaborative)
+## Phase 4: Acceptance Criteria (Collaborative)
 
 Draft acceptance criteria yourself based on everything discussed, then present them as text and use `AskUserQuestion` to ask the developer to validate each category. Organize into:
 
@@ -176,7 +176,7 @@ See `references/questioning-examples.md#phase-6` for example format.
 
 ---
 
-## Phase 7: Self-Audit + Scorecard (Claude does this silently before writing the spec)
+## Phase 5: Self-Audit + Scorecard (Claude does this silently before writing the spec)
 
 Before generating the final spec file, silently run two passes. Do NOT ask the developer — fix issues yourself or flag as `[NEEDS CLARIFICATION]`.
 
@@ -197,7 +197,7 @@ Score the spec across 4 axes using the sub-checks below. All scoring is mechanis
 
 | Check | Scoring |
 |-------|---------|
-| C1: All 13 required sections present and non-empty | count / 13 |
+| C1: All 14 core sections present and non-empty (Overview, Scope, Reference Implementation, Codebase Context, Requirements, Prohibitions, Decision Tree, Domain Rules & Exceptions, Escalation & Guardrails, Data Model, Acceptance Criteria, Files to Create/Modify, Observability, Key Decisions Made) — API Contract and Open Questions are conditional and excluded here | count / 14 |
 | C2: Data Model defines at least one entity with properties | 0 or 1 |
 | C3: API Contract has route+method, OR explicitly states "N/A" with reason | 0 or 1 |
 | C4: Files to Create/Modify lists concrete file paths | 0 or 1 |
@@ -423,7 +423,7 @@ This specification is context for the implementing agent. Read and internalize i
 - **You are a specification writer.** Your output is markdown: spec files in `.claude/specs/` and updates to the project's conventions file (`AGENTS.md` or `CLAUDE.md`). You never produce source code, configuration, or any other implementation artifact.
 - **When describing patterns, reference by file path.** Never write or reproduce code.
 - **ALWAYS use the `AskUserQuestion` tool for every question.** NEVER present questions as inline text with lettered options. This is the single most important behavior. There are ZERO exceptions — every question goes through `AskUserQuestion`.
-- If the developer tries to skip Phase 2 (Don'ts) or Phase 3 (Decision Forks), push back firmly — using `AskUserQuestion` to present the skip as an explicit choice with consequences.
+- If the developer tries to skip Phase 2 (Don'ts) or the Decision Forks in Phase 3, push back firmly — using `AskUserQuestion` to present the skip as an explicit choice with consequences.
 - Reference actual files and interfaces from the codebase — don't be generic.
 - Keep each phase to 2-3 grouped questions via `AskUserQuestion` (up to 4 questions per call). Summarize answers before moving on.
 - If you discover anti-patterns during Phase 0, present them via `AskUserQuestion` as "should we avoid this?" options.

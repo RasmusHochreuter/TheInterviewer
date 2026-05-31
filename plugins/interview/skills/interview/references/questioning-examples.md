@@ -6,6 +6,8 @@ Reference examples for how to construct `AskUserQuestion` tool calls during each
 
 > **Note:** These examples use a .NET/C# codebase for illustration. When working with a different stack, adapt the specific library and pattern references to match the project's actual tools and conventions.
 
+> **Phase mapping:** This file is organized by *topic*, and some topics share a phase in `SKILL.md`. Phase 1 (Requirements & Domain) draws on both the **Phase 1** and **Phase 4 (Relationship)** examples below; Phase 3 (Decision Forks & Guardrails) draws on both the **Phase 3** and **Phase 5 (Guardrail)** examples. The "Phase Transitions" section applies at the end of every interactive phase.
+
 ## Bad vs Good Questioning
 
 **Bad (open-ended text question):**
