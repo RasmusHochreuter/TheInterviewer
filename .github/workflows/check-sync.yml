@@ -1,0 +1,21 @@
+name: Check skill mirror is in sync
+
+# The skill lives in two places that must stay byte-identical:
+#   - plugins/interview/skills/interview/  (canonical, installed via the marketplace)
+#   - skill/                               (mirror, for manual copy-install)
+# This workflow fails if someone edits one without regenerating the other.
+# To fix a failure locally: run ./scripts/sync-skill.ps1 and commit the result.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify skill/ matches the canonical plugin copy
+        shell: pwsh
+        run: ./scripts/sync-skill.ps1 -Check
