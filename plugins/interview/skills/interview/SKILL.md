@@ -7,7 +7,7 @@ compatibility: "Works with any codebase. Best with structured architectures (Cle
 model: opus
 effort: xhigh
 metadata:
-  version: 1.5.0
+  version: 1.6.0
 ---
 
 # Feature Planning — "Know When to Say No"
@@ -71,11 +71,12 @@ Ask clarifying questions via `AskUserQuestion` at EVERY decision point. Typical 
 
 ### Question Cadence
 
-Questions are the whole point of this skill — ask freely and drill into every ambiguity. The streamlining in this version is about **phases, not questions**: there are fewer phase boundaries (4 interactive phases instead of 6), but each phase stays as thorough as the feature warrants.
+Questions are the whole point of this skill — drill into every ambiguity. Depth scales with the feature: a simple feature may need one call per phase, a complex one several.
 
-- Ask **2-3 grouped questions per phase** using `AskUserQuestion` (up to 4 questions per call), not 10 individual ones. Use multiple calls within a phase when a topic has depth.
+- **Group related questions** into one `AskUserQuestion` call (up to 4 questions per call) rather than asking them one at a time. Make additional calls within a phase whenever a topic has depth.
 - After each `AskUserQuestion` response, **summarize what you understood** before moving on
 - If an answer raises a follow-up, ask it immediately via another `AskUserQuestion` call. Never skip a follow-up to save time.
+- Don't ask what the codebase or earlier answers already settled — state it in your summary instead.
 - At the end of each phase, use `AskUserQuestion` with a single confirmation question: "Anything I missed or got wrong before we move on?" with options like "Looks good", "I have corrections", "I want to add something"
 
 ---
@@ -84,17 +85,21 @@ Questions are the whole point of this skill — ask freely and drill into every 
 
 Before asking the developer anything, silently **read** the codebase. Do not modify, build, or execute anything.
 
+**Spec name and existing specs** — Derive a short kebab-case spec name (`{feature-name}`) from `$ARGUMENTS` (e.g., "users need to reset their password via email" → `password-reset`). If no arguments were given, ask what the feature is. Check whether `.claude/specs/{feature-name}.md` already exists:
+
+- **Exists**: Read it, count its `[NEEDS CLARIFICATION]` markers, and score it with the Phase 5 scorecard to find its weakest axis. Before reconnaissance questions, ask via `AskUserQuestion` whether to **refine it**, **start fresh** (overwrite), or **use a new name**. See `references/questioning-examples.md#existing-spec-found`.
+- **Refine mode**: Keep every decision already in the spec. Run only the phases needed to resolve `[NEEDS CLARIFICATION]` markers, fill empty or weak sections, and capture anything the developer wants to change. Briefly confirm the settled phases instead of re-interviewing them. Then run Phase 5 and overwrite the spec in place.
+- **Doesn't exist**: Confirm the spec name together with the Phase 0 scope question.
+
+Then run the reconnaissance:
+
 1. **Project conventions**: Check for `AGENTS.md` and `CLAUDE.md` at the project root. Read whichever exists — conventions become pre-populated don'ts in Phase 2.
    - `AGENTS.md` is the vendor-agnostic standard (works with Claude Code, Copilot, Cursor, Codex, and other AI tools). `CLAUDE.md` is Claude Code-specific. Some projects use both — typically `AGENTS.md` holds the actual conventions and `CLAUDE.md` is a thin shell (e.g., "Read and follow AGENTS.md for all project conventions."). Detect and respect whichever pattern the project uses.
    - **Detecting the conventions file**: The file that contains actual project conventions (technology stack, constraints, naming rules) is the **conventions file** for the rest of this workflow. Use it for all reads and writes. Detection rules:
      - **Both exist**: Read both. If `CLAUDE.md` is a thin shell pointing to `AGENTS.md`, treat `AGENTS.md` as the conventions file. If both have substantive content, treat `AGENTS.md` as the conventions file and note any Claude-specific rules from `CLAUDE.md`.
      - **Only `AGENTS.md` exists**: It is the conventions file.
      - **Only `CLAUDE.md` exists**: It is the conventions file.
-   - **If neither exists**: After completing steps 2-13, ask the developer which to create:
-     - **A) AGENTS.md + thin CLAUDE.md (Recommended)** — Conventions in `AGENTS.md`, plus a one-line `CLAUDE.md` that says "Read and follow AGENTS.md for all project conventions." Works with all AI coding tools, not just Claude.
-     - **B) CLAUDE.md only** — All conventions in `CLAUDE.md`. Simpler if the team only uses Claude Code.
-     - **C) Skip** — Don't create a conventions file now.
-     Present the draft conventions to the developer for confirmation before writing.
+   - **If neither exists**: After completing steps 2-13, present the drafted conventions as text, then use `AskUserQuestion` to ask where to save them. The options are `AGENTS.md` plus a one-line `CLAUDE.md` that says "Read and follow AGENTS.md for all project conventions." (Recommended — works with all AI coding tools), `CLAUDE.md` only, or skip. See `references/questioning-examples.md#no-conventions-file`.
    - **If the conventions file exists but lacks project conventions**: After completing steps 2-13, **append** a conventions section based on what you discovered. Present the additions to the developer for confirmation before writing them.
    - **Content principles** — Every token in the conventions file is read on every future task across the project. Treat it like a hot path. Apply "minimal but complete":
      - **Include**: Tool choices and overrides ("Use: X", "Don't use: Y"), hard constraints the agent would get wrong by default, naming conventions, deprecated patterns to avoid, and pointers to deeper docs when needed.
@@ -112,7 +117,9 @@ Before asking the developer anything, silently **read** the codebase. Do not mod
 12. **Config patterns**: Configuration management, secrets, environment handling
 13. **Similar features**: Find 2-3 existing features as reference implementations
 
-After reconnaissance, present a brief summary of findings, then use `AskUserQuestion` to ask about reference implementation and scope. See `references/questioning-examples.md#phase-0` for example format.
+**Empty or new projects** — If there is little or no source code (no existing features to copy from), don't invent patterns. Use `AskUserQuestion` to choose the stack, project structure, test framework, and error-handling approach, and record those choices in the conventions file and in the spec's Codebase Context section. Write the Reference Implementation section as `N/A — new project` and skip the reference-implementation question.
+
+After reconnaissance, present a brief summary of findings, then use `AskUserQuestion` to ask about reference implementation and scope. See `references/questioning-examples.md#reconnaissance` for example format.
 
 ---
 
@@ -120,7 +127,7 @@ After reconnaissance, present a brief summary of findings, then use `AskUserQues
 
 Instead of asking "what should this feature do?", guide with informed options grounded in the codebase. This phase covers **what the feature does** and **the domain it lives in** — keep asking until both are pinned down.
 
-**Requirements** — cover entry points, data model needs, and integration requirements via `AskUserQuestion`. Each answer should trigger 1-2 follow-up `AskUserQuestion` calls. See `references/questioning-examples.md#phase-1`.
+**Requirements** — cover entry points, data model needs, and integration requirements via `AskUserQuestion`. Each answer should trigger 1-2 follow-up `AskUserQuestion` calls. See `references/questioning-examples.md#requirements`.
 
 **Domain relationships** — present what you found about the domain model briefly, then ask about:
 
@@ -128,7 +135,7 @@ Instead of asking "what should this feature do?", guide with informed options gr
 - **Temporal constraints**: Time-based behavior differences?
 - **Domain events**: Should this feature produce or consume events?
 
-These three fit in a single `AskUserQuestion` call. Skip a topic only if Phase 0 made the answer obvious (e.g., no tiers exist in the domain). See `references/questioning-examples.md#phase-4` for the domain question patterns.
+These three fit in a single `AskUserQuestion` call. Skip a topic only if Phase 0 made the answer obvious (e.g., no tiers exist in the domain). See `references/questioning-examples.md#domain` for the domain question patterns.
 
 ---
 
@@ -138,7 +145,7 @@ These three fit in a single `AskUserQuestion` call. Skip a topic only if Phase 0
 2. **Probe feature-specific don'ts**: Use `AskUserQuestion` to ask about auto-processing thresholds, data mutation safety, idempotency.
 3. **Push if fewer than 3 don'ts**: Use `AskUserQuestion` with `multiSelect: true` for disaster scenario selection (rate limiting, manipulation, race conditions, data loss).
 
-See `references/questioning-examples.md#phase-2` for example question patterns.
+See `references/questioning-examples.md#prohibitions` for example question patterns.
 
 ---
 
@@ -159,7 +166,7 @@ This phase covers **branching behavior** and **failure handling** — both defin
 - Rate limiting needs (none / simple / tiered / circuit breaker)
 - Observability level (minimal / moderate / high / regulated)
 
-The four guardrail topics fit in a single `AskUserQuestion` call. See `references/questioning-examples.md#phase-3` and `#phase-5` for example patterns.
+The four guardrail topics fit in a single `AskUserQuestion` call. See `references/questioning-examples.md#decision-forks` and `#guardrails` for example patterns.
 
 ---
 
@@ -172,7 +179,7 @@ Draft acceptance criteria yourself based on everything discussed, then present t
 - Edge Cases
 - Resilience
 
-See `references/questioning-examples.md#phase-6` for example format.
+See `references/questioning-examples.md#acceptance-criteria` for example format.
 
 ---
 
@@ -191,17 +198,21 @@ Before generating the final spec file, silently run two passes. Do NOT ask the d
 
 ### Pass 2: Spec Scorecard
 
-Score the spec across 4 axes using the sub-checks below. All scoring is mechanistic and structural — count what exists, do not judge subjectively.
+Score the spec across 4 axes using the sub-checks below. Scoring is structural — count what exists, do not judge subjectively. Treat the result as a self-check that points at gaps, not a precise measurement.
+
+**Never invent content to raise a score.** A number, threshold, prohibition, or rule that the developer didn't give you and the codebase doesn't establish does not belong in the spec. An honest `[NEEDS CLARIFICATION]` is always better than a made-up value.
+
+**N/A counts as satisfied.** Simple features legitimately lack some content (no external dependencies, no tiers, no API). Any section or check below that genuinely doesn't apply is satisfied when the spec says so explicitly: `N/A — {reason}`. Never pad a section just to make it non-empty.
 
 #### Completeness — "Can the implementer understand the full scope?"
 
 | Check | Scoring |
 |-------|---------|
-| C1: All 14 core sections present and non-empty (Overview, Scope, Reference Implementation, Codebase Context, Requirements, Prohibitions, Decision Tree, Domain Rules & Exceptions, Escalation & Guardrails, Data Model, Acceptance Criteria, Files to Create/Modify, Observability, Key Decisions Made) — API Contract and Open Questions are conditional and excluded here | count / 14 |
-| C2: Data Model defines at least one entity with properties | 0 or 1 |
-| C3: API Contract has route+method, OR explicitly states "N/A" with reason | 0 or 1 |
+| C1: All 14 core sections present and either filled or marked `N/A — {reason}` (Overview, Scope, Reference Implementation, Codebase Context, Requirements, Prohibitions, Decision Tree, Domain Rules & Exceptions, Escalation & Guardrails, Data Model, Acceptance Criteria, Files to Create/Modify, Observability, Key Decisions Made) — API Contract and Open Questions are conditional and excluded here | count / 14 |
+| C2: Data Model defines at least one entity with properties, OR states N/A with reason | 0 or 1 |
+| C3: API Contract has route+method, OR states N/A with reason | 0 or 1 |
 | C4: Files to Create/Modify lists concrete file paths | 0 or 1 |
-| C5: Reference Implementation points to actual codebase file | 0 or 1 |
+| C5: Reference Implementation points to an actual codebase file, OR states `N/A — new project` | 0 or 1 |
 
 #### Clarity — "Is there only one interpretation?"
 
@@ -216,42 +227,43 @@ Score the spec across 4 axes using the sub-checks below. All scoring is mechanis
 
 | Check | Scoring |
 |-------|---------|
-| N1: >= 5 prohibitions | min(1, count / 5) |
+| N1: >= 3 prohibitions | min(1, count / 3) |
 | N2: Each prohibition has a rationale | with_rationale / total |
 | N3: Each prohibition has a matching negative test | with_test / total |
 | N4: Scope has >= 2 "Out of Scope" items | 0 or 1 |
-| N5: Escalation has "Fail if" AND "Queue/Review if" conditions | 0, 0.5, or 1 |
+| N5: Escalation has "Fail if" AND "Queue/Review if" conditions (each may be N/A with reason) | 0, 0.5, or 1 |
 
 #### Specificity — "Are there concrete, testable details?"
 
 | Check | Scoring |
 |-------|---------|
 | S1: Acceptance criteria have concrete values (not placeholders) | concrete / total |
-| S2: Domain Rules table has specific thresholds in >= 50% of rows | rows_with_specifics / total |
+| S2: Domain Rules rows that state a concrete condition or threshold (values agreed in the interview), OR the table is N/A with reason | rows_with_specifics / total (1 if N/A) |
 | S3: Observability specifies log level(s) AND metric name(s) | 0.5 each |
 | S4: Error handling specifies concrete responses (status codes, error types) | 0 or 1 |
-| S5: At least one numeric threshold/timeout/limit with actual number | 0 or 1 |
+| S5: Every limit, timeout, or threshold the feature has is stated as an actual number, OR the spec states the feature has none | 0 or 1 |
 
 #### Scoring Formula
 
-- **Axis score** = average of sub-checks (0.0–1.0)
-- **Balance** = `1 - sqrt(variance) / mean` (population variance of 4 axis scores)
-- All scores rounded to 2 decimal places
+- **Axis score** = average of its sub-checks (0.0–1.0), rounded to 2 decimal places
+- **Overall score** = the **lowest** axis score. A spec is only as ready as its weakest area, so the headline never hides a weak axis.
 
 #### Readiness
 
-- **Ready: YES** — All axes >= 0.75 AND balance >= 0.90
-- **Ready: NO** — Anything else
+- **Ready: YES** — every axis >= 0.75
+- **Ready: NO** — any axis < 0.75
 
 #### Self-repair rule
 
-If Ready: NO and any axis < 0.50: silently attempt to improve the weakest axis (add missing sections, replace weasel phrases, add `[NEEDS CLARIFICATION]` markers). Re-score once. Do not loop more than once.
+If Ready: NO, silently fix what you can **using only information already gathered** in the interview and codebase: add missing sections (or mark them `N/A — {reason}`), replace weasel phrases with the concrete wording the developer agreed to, add negative tests for don'ts that lack one, and add rationales the developer already gave. Anything that needs information you don't have becomes a `[NEEDS CLARIFICATION]` marker. Re-score once. Do not loop more than once.
 
 ---
 
 ## Output: Feature Specification (Markdown Only)
 
 After all phases, produce a **single markdown file** and save it to `.claude/specs/{feature-name}.md`.
+
+For the level of detail to aim for, see `examples/order-cancellation-spec.md` — a complete spec for a complex feature. Simpler features should be proportionally shorter: mark sections that don't apply as `N/A — {reason}` rather than padding them.
 
 When describing patterns, **always reference existing files by path** rather than writing code:
 - "Follow the validation pattern in `src/Features/Orders/PlaceOrder/PlaceOrderValidator.cs`"
@@ -282,7 +294,7 @@ This specification is context for the implementing agent. Read and internalize i
 
 ### Spec Template
 
-```markdown
+````markdown
 # Feature: {Name}
 > Specification generated by /interview on {date}
 > This is a planning document. No implementation code has been written.
@@ -301,7 +313,7 @@ This specification is context for the implementing agent. Read and internalize i
 - {Follow-up features for later}
 
 ## Reference Implementation
-- Reference: `{path to reference feature}`
+- Reference: `{path to reference feature}` (or `N/A — new project`)
 - Replicate: file layout, DI registration, validation, error handling, test structure
 
 ## Codebase Context
@@ -319,7 +331,7 @@ This specification is context for the implementing agent. Read and internalize i
 
 ## Prohibitions (Don'ts)
 - NEVER {do X} — because {Y}
-{Minimum 5}
+{Minimum 3; complex features typically have 5+. Every prohibition must come from the interview or the codebase — never pad.}
 
 ## Decision Tree
 ```
@@ -374,25 +386,25 @@ This specification is context for the implementing agent. Read and internalize i
 
 ## Open Questions
 {Broader strategic questions — tactical gaps are marked inline as `[NEEDS CLARIFICATION]`}
-```
+````
 
 ---
 
 ## Post-Generation
 
-1. **Update the conventions file**: Add a reference to the new spec under a `## Specs` section in the conventions file identified during Phase 0 (create the section if it doesn't exist). Keep entries compact — path only, no descriptions (e.g., `- .claude/specs/password-reset.md`). If specs listed there have already been implemented or are obsolete, remove them — every token in this file is read on every future task. If the interview revealed new conventions, patterns, or prohibitions not yet captured, append them to the conventions section. Present the changes to the developer for confirmation before writing.
-2. **Display Spec Scorecard**: Render the scorecard using the bar chart format below. Show readiness (YES or NO), balance, all 4 axis scores, flag the weakest axis, and list up to 3 actionable findings referencing specific spec sections.
+1. **Update the conventions file**: If the interview revealed new project-wide conventions, patterns, or prohibitions not yet captured, append them to the conventions section of the conventions file identified during Phase 0. Only add rules that apply beyond this one feature — feature-specific rules belong in the spec. Do **not** add a list of specs: every token in this file is read on every future task, and the implementing session is given the spec path directly. Present the changes to the developer for confirmation before writing. If there's nothing new, skip this step.
+2. **Display Spec Scorecard**: Render the scorecard using the bar chart format below. Show the overall score (the lowest axis), all 4 axis scores, and readiness (YES or NO). If not ready, flag the weakest axis and list up to 3 actionable findings referencing specific spec sections.
 
    ```
    ──────────────────────────────────────────
    SPEC SCORECARD
-   Score:        🟢 ▰▰▰▰▰▰▰▰▰▱ 0.90
+   Score:        🟡 ▰▰▰▰▰▰▱▱▱▱ 0.55
    ──────────────────────────────────────────
 
    Completeness  🟢 ▰▰▰▰▰▰▰▰▰▱ 0.90
    Clarity       🟢 ▰▰▰▰▰▰▰▰▱▱ 0.80
    Constraints   🟢 ▰▰▰▰▰▰▰▰▰▱ 0.90
-   Specificity   🟡 ▰▰▰▰▰▱▱▱▱▱ 0.55
+   Specificity   🟡 ▰▰▰▰▰▰▱▱▱▱ 0.55
 
    Weakest: {Axis Name}
    ► {Finding 1 referencing spec section}
@@ -404,10 +416,10 @@ This specification is context for the implementing agent. Read and internalize i
    ```
 
    Bars use `▰` (filled) and `▱` (empty), 10 blocks per bar. Count = round(score x 10).
-   Each bar is prefixed with a traffic-light dot: 🟢 >= 0.70, 🟡 0.50–0.69, 🔴 < 0.50.
+   Each bar is prefixed with a traffic-light dot matching the readiness threshold: 🟢 >= 0.75, 🟡 0.50–0.74, 🔴 < 0.50.
 
    - If **Ready: YES**: omit the Weakest/findings section entirely.
-   - If **Ready: NO** and any axis < 0.50: append `Recommendation: Address the findings above, then re-run /interview to refine.`
+   - If **Ready: NO**: after the scorecard, use `AskUserQuestion` to offer **resolving the open points now** (Recommended — ask only about the `[NEEDS CLARIFICATION]` markers and findings, update the spec, and re-score) or **leaving them for later** (the developer can re-run `/interview {feature-name}` to refine the spec).
 
 3. **Suggest next step**:
    > "The spec is saved to `.claude/specs/{feature-name}.md`. To start implementation, open a fresh Claude Code session and tell it:
@@ -425,7 +437,7 @@ This specification is context for the implementing agent. Read and internalize i
 - **ALWAYS use the `AskUserQuestion` tool for every question.** NEVER present questions as inline text with lettered options. This is the single most important behavior. There are ZERO exceptions — every question goes through `AskUserQuestion`.
 - If the developer tries to skip Phase 2 (Don'ts) or the Decision Forks in Phase 3, push back firmly — using `AskUserQuestion` to present the skip as an explicit choice with consequences.
 - Reference actual files and interfaces from the codebase — don't be generic.
-- Keep each phase to 2-3 grouped questions via `AskUserQuestion` (up to 4 questions per call). Summarize answers before moving on.
+- Group related questions into each `AskUserQuestion` call (up to 4 per call), follow up on every ambiguity, and summarize answers before moving on.
 - If you discover anti-patterns during Phase 0, present them via `AskUserQuestion` as "should we avoid this?" options.
 - If the developer asks you to write implementation code, recommend starting a fresh Claude Code session after the spec is complete. The spec contains everything Claude needs.
-- If $ARGUMENTS is provided, use it as the feature name and starting context.
+- If $ARGUMENTS is provided, derive the spec name from it (see Phase 0) and use the full text as starting context.

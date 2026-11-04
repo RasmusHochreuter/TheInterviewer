@@ -19,3 +19,6 @@ jobs:
       - name: Verify skill/ matches the canonical plugin copy
         shell: pwsh
         run: ./scripts/sync-skill.ps1 -Check
+      - name: Verify plugin version matches across manifests and SKILL.md
+        shell: pwsh
+        run: ./scripts/check-versions.ps1

@@ -30,19 +30,18 @@ Other spec tools ([spec-kit](https://github.com/github/spec-kit), [Pimzino](http
 
 Claude reads your code first, then asks questions grounded in what it found. Instead of open-ended questions like "How should errors be handled?", it presents options derived from your actual codebase:
 
-> "I see three error handling patterns in your codebase. Most request handlers return a result object, a few throw exceptions caught by middleware, and one module uses inline checks.
->
-> For this feature:
->
-> **A) Result object** — consistent with most of your code, caller gets structured errors
->
-> **B) Throw exception** — simpler, middleware handles it uniformly
->
-> **C) Inline checks** — if the rules are tightly coupled to business logic
->
-> **D) Something else**
->
-> I'd recommend option A since 80% of your codebase follows that pattern."
+> "I see three error handling patterns in your codebase. Most request handlers return a result object, a few throw exceptions caught by middleware, and one module uses inline checks."
+
+Then a native Claude Code selection prompt appears:
+
+```
+Error handling — Which error handling approach should this feature use?
+
+  ❯ Result object (Recommended)   Consistent with most of your code, caller gets structured errors
+    Throw exception               Simpler, middleware handles it uniformly
+    Inline checks                 If the rules are tightly coupled to business logic
+    Other                         Type your own answer
+```
 
 Recognition beats recall. Picking from informed options is faster, more accurate, and surfaces approaches you might not have considered.
 
@@ -50,7 +49,7 @@ Recognition beats recall. Picking from informed options is faster, more accurate
 
 | # | Phase | What Happens |
 |---|-------|--------------|
-| 0 | **Codebase Recon** | Claude silently reads your architecture, DI, error handling, test patterns. Detects `AGENTS.md` / `CLAUDE.md` — creates a conventions file if missing, or appends conventions if lacking |
+| 0 | **Codebase Recon** | Claude silently reads your architecture, DI, error handling, test patterns. Detects `AGENTS.md` / `CLAUDE.md` — creates a conventions file if missing, or appends conventions if lacking. On a new, empty project it asks you to choose the stack instead. If a spec with the same name exists, offers to refine it |
 | 1 | **Requirements & Domain** | Guided choices about reference implementation, scope, entry points, data, integrations, plus domain context — tier differences, temporal constraints, domain events |
 | 2 | **Don'ts** | Presents inferred constraints for confirmation, probes for prohibitions, pushes for disaster scenarios |
 | 3 | **Decision Forks & Guardrails** | Drafts a decision tree you correct, sets escalation boundaries per branch, then failure modes, retry strategies, rate limiting, and observability |
@@ -58,6 +57,14 @@ Recognition beats recall. Picking from informed options is faster, more accurate
 | 5 | **Self-Audit + Scorecard** | Verifies consistency, scores spec on 4 axes (Completeness, Clarity, Constraints, Specificity), displays results |
 
 Output: `.claude/specs/<feature-name>.md`
+
+### The Scorecard
+
+After writing the spec, Claude scores it on four areas and shows the result. The headline score is the **lowest** of the four, and the spec is ready for implementation when every area reaches 0.75. Sections that genuinely don't apply (no API, no external dependencies) count as complete when the spec marks them `N/A` with a reason, so simple features aren't penalized for being simple. Claude never invents numbers or rules to raise the score. Anything it doesn't know is marked `[NEEDS CLARIFICATION]`, and if the spec isn't ready, it offers to resolve those points right away.
+
+### Refining a Spec
+
+Run `/interview` again with the same feature name to refine an existing spec. Claude keeps the decisions already made, focuses on open `[NEEDS CLARIFICATION]` markers and weak sections, and updates the spec in place. You can also choose to start fresh or save under a new name.
 
 The interview is heavy on questions by design — every decision point is a native multiple-choice prompt grounded in your code. The phases above just group those questions; a complex feature may produce many questions per phase.
 
@@ -79,11 +86,12 @@ Or browse interactively — run `/plugin`, go to the **Discover** tab, and selec
 ### Option 2: Copy into your project
 
 ```bash
-# From the repo root
-mkdir -p .claude/skills/interview/examples
-cp skill/SKILL.md .claude/skills/interview/
-cp skill/examples/order-cancellation-spec.md .claude/skills/interview/examples/
+# From a clone of this repo, with YOUR_PROJECT pointing at your project root
+mkdir -p "$YOUR_PROJECT/.claude/skills"
+cp -r skill "$YOUR_PROJECT/.claude/skills/interview"
 ```
+
+This copies `SKILL.md` together with its `references/` and `examples/` folders, which the skill relies on.
 
 Commit the skills with your repo so the whole team has them.
 
@@ -95,7 +103,7 @@ Commit the skills with your repo so the whole team has them.
 /interview users need to reset their password via email
 ```
 
-Paste your user story, ticket description, or just describe the feature. Claude reads your codebase, walks you through the 8-phase interview to fill in the technical details, and saves the spec to `.claude/specs/password-reset.md`.
+Paste your user story, ticket description, or just describe the feature. Claude reads your codebase, walks you through the interview phases to fill in the technical details, and saves the spec to `.claude/specs/password-reset.md`.
 
 ### Step 2: Implement from the spec
 
@@ -130,7 +138,7 @@ Two .NET convention templates are available in [`templates/dotnet/`](templates/d
 For deeper changes, edit `SKILL.md` directly. Common modifications:
 
 **Change the output path:**
-The skill saves specs to `.claude/specs/{feature-name}.md`. If you prefer a different location (e.g., `docs/specs/` or `specs/`), find the output path in the `## Output` section and the `## Post-Generation` section and update both.
+The skill saves specs to `.claude/specs/{feature-name}.md`. If you prefer a different location (e.g., `docs/specs/` or `specs/`), search `SKILL.md` for `.claude/specs/` and update every occurrence (Phase 0, Output, Post-Generation, and Skill Behaviors all reference it).
 
 **Add or remove phases:**
 If your team doesn't need the Domain Rules & Exceptions table, or wants an additional phase for security review, edit the phase list. Each phase is a standalone `## Phase N` section.
@@ -147,7 +155,13 @@ Phase 0 reconnaissance is language-agnostic and adapts to whatever project struc
 
 ## Examples
 
-The `examples/` folder contains example specs organized by stack. The bundled examples are .NET/C#, but the skill works with any language — contributions for other stacks are welcome.
+The `examples/` folder contains example specs organized by stack. The skill works with any language — contributions for other stacks are welcome.
+
+### TypeScript / React
+
+| # | Feature | Complexity | Highlights |
+|---|---------|------------|------------|
+| [01](examples/typescript/01-simple-calculator.md) | **Simple Calculator** | Simple | New project with no existing code — stack chosen during the interview, no reference implementation, UI-only feature with no API. |
 
 ### .NET / C#
 
@@ -168,10 +182,12 @@ theinterviewer/
 ├── README.md                        <- you are here
 ├── LICENSE
 ├── examples/
-│   └── dotnet/                      <- .NET/C# examples (add your stack here!)
-│       ├── 01-product-rating.md
-│       ├── 02-team-member-invite.md
-│       └── 03-order-cancellation.md
+│   ├── dotnet/                      <- .NET/C# examples (add your stack here!)
+│   │   ├── 01-product-rating.md
+│   │   ├── 02-team-member-invite.md
+│   │   └── 03-order-cancellation.md
+│   └── typescript/
+│       └── 01-simple-calculator.md
 ├── plugins/
 │   └── interview/                   <- plugin package (installed via marketplace)
 │       ├── .claude-plugin/
@@ -190,14 +206,15 @@ theinterviewer/
 │   └── examples/
 │       └── order-cancellation-spec.md
 ├── scripts/
-│   └── sync-skill.ps1               <- regenerates skill/ from the canonical plugin copy
+│   ├── sync-skill.ps1               <- regenerates skill/ from the canonical plugin copy
+│   └── check-versions.ps1           <- verifies the version matches in all three places
 └── templates/
     └── dotnet/               <- .NET/C# convention templates (add your stack here!)
         ├── claude-md-conventions.md
         └── claude-md-conventions-alt.md
 ```
 
-> **Editing the skill:** `plugins/interview/skills/interview/` is the single source of truth. After editing it, run `./scripts/sync-skill.ps1` to regenerate the `skill/` mirror (or `./scripts/sync-skill.ps1 -Check` to verify they match). Never hand-edit `skill/` — your changes will be overwritten on the next sync.
+> **Editing the skill:** `plugins/interview/skills/interview/` is the single source of truth. After editing it, run `./scripts/sync-skill.ps1` to regenerate the `skill/` mirror (or `./scripts/sync-skill.ps1 -Check` to verify they match). Never hand-edit `skill/` — your changes will be overwritten on the next sync. When releasing, bump the version in `plugin.json`, `marketplace.json`, and the `SKILL.md` frontmatter together; CI runs `./scripts/check-versions.ps1` to catch mismatches.
 
 ## Tips
 
