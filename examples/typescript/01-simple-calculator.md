@@ -44,6 +44,9 @@ A simple, browser-based arithmetic calculator built with React and TypeScript. I
 - History panel
 - Copy result to clipboard
 
+## Reference Implementation
+N/A — new project (no existing code to follow).
+
 ## Codebase Context
 - **Language**: TypeScript
 - **Framework**: React (create with Vite or similar)

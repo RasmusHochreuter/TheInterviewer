@@ -1,12 +1,12 @@
-# Questioning Examples by Phase
+# Questioning Examples by Topic
 
-Reference examples for how to construct `AskUserQuestion` tool calls during each phase of the TheInterviewer specification workflow.
+Reference examples for how to construct `AskUserQuestion` tool calls during the TheInterviewer specification workflow.
 
 > **CRITICAL RULE:** Every question to the developer MUST use the `AskUserQuestion` tool. NEVER present questions as inline text with A/B/C/D options. The tool provides a native Claude Code selection UI — this is non-negotiable.
 
 > **Note:** These examples use a .NET/C# codebase for illustration. When working with a different stack, adapt the specific library and pattern references to match the project's actual tools and conventions.
 
-> **Phase mapping:** This file is organized by *topic*, and some topics share a phase in `SKILL.md`. Phase 1 (Requirements & Domain) draws on both the **Phase 1** and **Phase 4 (Relationship)** examples below; Phase 3 (Decision Forks & Guardrails) draws on both the **Phase 3** and **Phase 5 (Guardrail)** examples. The "Phase Transitions" section applies at the end of every interactive phase.
+> **Organization:** Sections are named by *topic* and ordered to follow the interview flow in `SKILL.md`. Each section notes which phase uses it.
 
 ## Bad vs Good Questioning
 
@@ -57,9 +57,11 @@ Note: The tool automatically adds an "Other" option — you do NOT need a "Somet
 
 ---
 
-## Phase 0: Post-Reconnaissance Questions
+## Reconnaissance
 
-After completing the 13-step codebase reconnaissance, present a brief summary in text, then use `AskUserQuestion`:
+_Used at the end of Phase 0 (Codebase Reconnaissance)._
+
+After completing codebase reconnaissance, present a brief summary in text, then use `AskUserQuestion`:
 
 > "Here's what I found in the codebase: [summary of architecture, patterns, key entities]."
 
@@ -108,9 +110,71 @@ After completing the 13-step codebase reconnaissance, present a brief summary in
 }
 ```
 
+### Existing spec found
+
+If `.claude/specs/{feature-name}.md` already exists, ask before doing anything else:
+
+```json
+{
+  "questions": [
+    {
+      "question": "A spec already exists at .claude/specs/password-reset.md (2 [NEEDS CLARIFICATION] markers, weakest area: Specificity). What should I do?",
+      "header": "Existing",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "Refine it (Recommended)",
+          "description": "Keep settled decisions, resolve open markers, and strengthen weak sections"
+        },
+        {
+          "label": "Start fresh",
+          "description": "Run the full interview and overwrite the existing spec"
+        },
+        {
+          "label": "Use a new name",
+          "description": "Keep the existing spec and write a separate one"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### No conventions file
+
+If neither `AGENTS.md` nor `CLAUDE.md` exists, present the drafted conventions in text, then ask:
+
+```json
+{
+  "questions": [
+    {
+      "question": "This project has no AGENTS.md or CLAUDE.md. Where should I save the conventions drafted above?",
+      "header": "Conventions",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "AGENTS.md + thin CLAUDE.md (Recommended)",
+          "description": "Conventions in AGENTS.md, plus a one-line CLAUDE.md pointing to it — works with all AI coding tools"
+        },
+        {
+          "label": "CLAUDE.md only",
+          "description": "Simpler if the team only uses Claude Code"
+        },
+        {
+          "label": "Skip",
+          "description": "Don't create a conventions file now"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ---
 
-## Phase 1: Requirements Questions
+## Requirements
+
+_Used in Phase 1 (Requirements & Domain)._
 
 **For API features:**
 
@@ -192,7 +256,93 @@ After completing the 13-step codebase reconnaissance, present a brief summary in
 
 ---
 
-## Phase 2: Don'ts Questions
+## Domain
+
+_Used in Phase 1 (Requirements & Domain), after the requirements questions._
+
+Briefly present what you found about the domain model, then:
+
+```json
+{
+  "questions": [
+    {
+      "question": "I see a CustomerTier enum (Standard, Enterprise, VIP). Does this feature behave differently per tier?",
+      "header": "Tier rules",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "Same for all tiers",
+          "description": "No tier-specific behavior"
+        },
+        {
+          "label": "Different thresholds per tier",
+          "description": "Same behavior but with different limits — I'll ask for specifics"
+        },
+        {
+          "label": "Some tiers excluded",
+          "description": "Certain tiers can't use this feature at all"
+        },
+        {
+          "label": "VIP gets special handling",
+          "description": "VIP tier has unique behavior beyond just different thresholds"
+        }
+      ]
+    },
+    {
+      "question": "Does this feature have temporal constraints?",
+      "header": "Time rules",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "No — works 24/7/365",
+          "description": "Same behavior regardless of time"
+        },
+        {
+          "label": "Maintenance windows",
+          "description": "Different behavior during scheduled maintenance"
+        },
+        {
+          "label": "Business hours",
+          "description": "Different behavior during vs outside business hours"
+        },
+        {
+          "label": "Deadline/expiry window",
+          "description": "There's a time window that affects eligibility"
+        }
+      ]
+    },
+    {
+      "question": "Should this feature raise or consume domain events?",
+      "header": "Events",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "Produces events",
+          "description": "Other features need to react (email, analytics, sync, etc.)"
+        },
+        {
+          "label": "No events",
+          "description": "Terminal operation with no downstream effects"
+        },
+        {
+          "label": "Consumes events",
+          "description": "Triggered by events from other features, doesn't produce its own"
+        },
+        {
+          "label": "Both produces and consumes",
+          "description": "Reacts to upstream events and triggers downstream ones"
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## Prohibitions
+
+_Used in Phase 2 (The Don'ts)._
 
 **Inferred don'ts — use `multiSelect: true` for confirmation:**
 
@@ -321,7 +471,9 @@ Provide context first:
 
 ---
 
-## Phase 3: Decision Fork Questions
+## Decision Forks
+
+_Used in Phase 3 (Decision Forks & Guardrails)._
 
 **Draft a decision tree, then present with `preview` for validation:**
 
@@ -415,89 +567,9 @@ Provide context first:
 
 ---
 
-## Phase 4: Relationship Questions
+## Guardrails
 
-Briefly present what you found about the domain model, then:
-
-```json
-{
-  "questions": [
-    {
-      "question": "I see a CustomerTier enum (Standard, Enterprise, VIP). Does this feature behave differently per tier?",
-      "header": "Tier rules",
-      "multiSelect": false,
-      "options": [
-        {
-          "label": "Same for all tiers",
-          "description": "No tier-specific behavior"
-        },
-        {
-          "label": "Different thresholds per tier",
-          "description": "Same behavior but with different limits — I'll ask for specifics"
-        },
-        {
-          "label": "Some tiers excluded",
-          "description": "Certain tiers can't use this feature at all"
-        },
-        {
-          "label": "VIP gets special handling",
-          "description": "VIP tier has unique behavior beyond just different thresholds"
-        }
-      ]
-    },
-    {
-      "question": "Does this feature have temporal constraints?",
-      "header": "Time rules",
-      "multiSelect": false,
-      "options": [
-        {
-          "label": "No — works 24/7/365",
-          "description": "Same behavior regardless of time"
-        },
-        {
-          "label": "Maintenance windows",
-          "description": "Different behavior during scheduled maintenance"
-        },
-        {
-          "label": "Business hours",
-          "description": "Different behavior during vs outside business hours"
-        },
-        {
-          "label": "Deadline/expiry window",
-          "description": "There's a time window that affects eligibility"
-        }
-      ]
-    },
-    {
-      "question": "Should this feature raise or consume domain events?",
-      "header": "Events",
-      "multiSelect": false,
-      "options": [
-        {
-          "label": "Produces events",
-          "description": "Other features need to react (email, analytics, sync, etc.)"
-        },
-        {
-          "label": "No events",
-          "description": "Terminal operation with no downstream effects"
-        },
-        {
-          "label": "Consumes events",
-          "description": "Triggered by events from other features, doesn't produce its own"
-        },
-        {
-          "label": "Both produces and consumes",
-          "description": "Reacts to upstream events and triggers downstream ones"
-        }
-      ]
-    }
-  ]
-}
-```
-
----
-
-## Phase 5: Guardrail Questions
+_Used in Phase 3 (Decision Forks & Guardrails), after the decision tree is settled._
 
 All four guardrail questions fit in a single `AskUserQuestion` call:
 
@@ -602,7 +674,9 @@ All four guardrail questions fit in a single `AskUserQuestion` call:
 
 ---
 
-## Phase 6: Acceptance Criteria
+## Acceptance Criteria
+
+_Used in Phase 4 (Acceptance Criteria)._
 
 Draft acceptance criteria in text (organized into Happy Path, Negative Tests, Edge Cases, Resilience), then use `AskUserQuestion` to validate each category:
 
@@ -662,6 +736,8 @@ Draft acceptance criteria in text (organized into Happy Path, Negative Tests, Ed
 ---
 
 ## Phase Transitions
+
+_Used at the end of every interactive phase (1–4)._
 
 At the end of each phase, use `AskUserQuestion` to confirm before moving on:
 
